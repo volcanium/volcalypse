@@ -1,0 +1,56 @@
+name: Volcalypse
+version: '1.0'
+main: fr.volcastaff.Volcalypse
+api-version: '1.20'
+author: VolcaStaff
+description: Plugin de missiles avec système d'interception
+
+commands:
+  missile:
+    description: Lance un missile à des coordonnées spécifiques
+    usage: /missile <type> <x> <z>
+    permission: volcalypse.missile
+    permission-message: §cVous n'avez pas la permission d'utiliser cette commande !
+    aliases:
+      - miss
+      - launch
+
+  interceptor:
+    description: Donne un interceptor d'un niveau spécifique
+    usage: /interceptor <niveau>
+    permission: volcalypse.interceptor
+    permission-message: §cVous n'avez pas la permission d'utiliser cette commande !
+    aliases:
+      - inter
+      - int
+
+  removeinterceptor:
+    description: Supprime tous les interceptors dans un rayon donné
+    usage: /removeinterceptor <rayon>
+    permission: volcalypse.removeinterceptor
+    permission-message: §cVous n'avez pas la permission d'utiliser cette commande !
+    aliases:
+      - reminter
+      - deleteinter
+      - delint
+
+permissions:
+  volcalypse.*:
+    description: Donne accès à toutes les commandes du plugin
+    children:
+      volcalypse.missile: true
+      volcalypse.interceptor: true
+      volcalypse.removeinterceptor: true
+    default: op
+
+  volcalypse.missile:
+    description: Permet de lancer des missiles
+    default: op
+
+  volcalypse.interceptor:
+    description: Permet d'obtenir des interceptors
+    default: op
+
+  volcalypse.removeinterceptor:
+    description: Permet de supprimer des interceptors
+    default: op
