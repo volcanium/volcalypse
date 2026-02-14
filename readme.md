@@ -47,7 +47,7 @@ A powerful and visually stunning Minecraft plugin that adds realistic missile sy
 
 - **Minecraft**: 1.21+
 - **Server**: Spigot or Paper
-- **Java**: 17+
+- **Java**: 21
 
 ## 🔧 Installation
 
