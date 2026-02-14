@@ -51,7 +51,7 @@ A powerful and visually stunning Minecraft plugin that adds realistic missile sy
 
 ## 🔧 Installation
 
-1. Download the latest `volcalypse-1.0-SNAPSHOT.jar` from [Releases](../../releases)
+1. Download the latest `volcalypse.jar` from [Releases](../../releases)
 2. Place the JAR file in your server's `plugins/` folder
 3. Restart your server
 4. Configure permissions (optional)
@@ -120,21 +120,12 @@ commands:
 
 ### Maven
 ```bash
-git clone https://github.com/yourusername/volcalypse
+git clone https://github.com/volcanium/volcalypse
 cd volcalypse
 mvn clean package
 ```
 
-The compiled JAR will be in `target/volcalypse-1.0-SNAPSHOT.jar`
-
-### Gradle
-```bash
-git clone https://github.com/yourusername/volcalypse
-cd volcalypse
-gradle clean build
-```
-
-The compiled JAR will be in `build/libs/volcalypse-1.0-SNAPSHOT.jar`
+The compiled JAR will be in `target/volcalypse.jar`
 
 ## 🎯 Technical Details
 
@@ -190,7 +181,6 @@ Special thanks to:
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](../../issues)
-- **Discussions**: [GitHub Discussions](../../discussions)
 
 ## 🗺️ Roadmap
 
