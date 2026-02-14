@@ -115,7 +115,7 @@ commands:
 ## 🏗️ Building from Source
 
 ### Prerequisites
-- JDK 17 or higher
+- JDK 21
 - Maven or Gradle
 
 ### Maven
