@@ -6,7 +6,7 @@
 
     <groupId>fr.volcastaff</groupId>
     <artifactId>volcalypse</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.7</version>
     <packaging>jar</packaging>
 
     <name>volcalypse</name>

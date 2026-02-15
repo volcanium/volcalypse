@@ -4,6 +4,8 @@ import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
@@ -51,14 +53,16 @@ public final class Volcalypse extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        getLogger().info("[VOLCALYPSE] Starting plugin - Version 1.21.11 Compatible");
+        getLogger().info("[VOLCALYPSE] v1.0.7 - STABLE - Console Support + Tab Completion");
         getServer().getPluginManager().registerEvents(this, this);
 
         interceptorKey = new NamespacedKey(this, "interceptor_level");
         placerKey = new NamespacedKey(this, "placer_uuid");
 
         // Enregistrement des commandes
-        getCommand("missile").setExecutor(new MissileCommand());
+        MissileCommand missileCmd = new MissileCommand();
+        getCommand("missile").setExecutor(missileCmd);
+        getCommand("missile").setTabCompleter(missileCmd);
         getCommand("interceptor").setExecutor(new InterceptorCommand());
         getCommand("removeinterceptor").setExecutor(new RemoveInterceptorCommand());
 
@@ -87,8 +91,8 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                                     double z = loc.getZ() + Math.sin(angle) * radius;
                                     double y = loc.getY() + Math.random() * 8;
                                     Location pLoc = new Location(loc.getWorld(), x, y, z);
-                                    loc.getWorld().spawnParticle(Particle.SOUL, pLoc, 2, 0.2, 0.2, 0.2, 0);
-                                    loc.getWorld().spawnParticle(Particle.WITCH, pLoc, 1, 0.1, 0.1, 0.1, 0);
+                                    Particle.SOUL.builder().location(pLoc).count(2).offset(0.2, 0.2, 0.2).extra(0).allPlayers().spawn();
+                                    Particle.WITCH.builder().location(pLoc).count(1).offset(0.1, 0.1, 0.1).extra(0).allPlayers().spawn();
                                 }
                             }
                             case "antimaterial" -> {
@@ -100,8 +104,8 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                                     double z = loc.getZ() + Math.sin(angle) * radius;
                                     double y = loc.getY() + Math.random() * 10;
                                     Location pLoc = new Location(loc.getWorld(), x, y, z);
-                                    loc.getWorld().spawnParticle(Particle.PORTAL, pLoc, 3, 0.3, 0.3, 0.3, 0.5);
-                                    loc.getWorld().spawnParticle(Particle.REVERSE_PORTAL, pLoc, 1, 0.1, 0.1, 0.1, 0.2);
+                                    Particle.PORTAL.builder().location(pLoc).count(3).offset(0.3, 0.3, 0.3).extra(0.5).allPlayers().spawn();
+                                    Particle.REVERSE_PORTAL.builder().location(pLoc).count(1).offset(0.1, 0.1, 0.1).extra(0.2).allPlayers().spawn();
                                 }
                             }
                             case "incendiary" -> {
@@ -113,8 +117,8 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                                     double z = loc.getZ() + Math.sin(angle) * radius;
                                     double y = loc.getY() + Math.random() * 5;
                                     Location pLoc = new Location(loc.getWorld(), x, y, z);
-                                    loc.getWorld().spawnParticle(Particle.SMOKE, pLoc, 2, 0.2, 0.2, 0.2, 0.02);
-                                    loc.getWorld().spawnParticle(Particle.FLAME, pLoc, 1, 0.1, 0.1, 0.1, 0);
+                                    Particle.SMOKE.builder().location(pLoc).count(2).offset(0.2, 0.2, 0.2).extra(0.02).allPlayers().spawn();
+                                    Particle.FLAME.builder().location(pLoc).count(1).offset(0.1, 0.1, 0.1).extra(0).allPlayers().spawn();
                                 }
                             }
                             case "medium", "large" -> {
@@ -126,7 +130,7 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                                     double z = loc.getZ() + Math.sin(angle) * radius;
                                     double y = loc.getY() + Math.random() * 6;
                                     Location pLoc = new Location(loc.getWorld(), x, y, z);
-                                    loc.getWorld().spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE, pLoc, 1, 0.1, 0.3, 0.1, 0.01);
+                                    Particle.CAMPFIRE_SIGNAL_SMOKE.builder().location(pLoc).count(1).offset(0.1, 0.3, 0.1).extra(0.01).allPlayers().spawn();
                                 }
                             }
                         }
@@ -165,7 +169,7 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                     armorStand.getPersistentDataContainer().set(placerKey, PersistentDataType.STRING, event.getPlayer().getUniqueId().toString());
 
                     // Effet de placement
-                    loc.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, loc, 50, 0.5, 1, 0.5, 0.1);
+                    Particle.TOTEM_OF_UNDYING.builder().location(loc).count(50).offset(0.5, 1, 0.5).extra(0.1).allPlayers().spawn();
                     loc.getWorld().playSound(loc, Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 1.5f);
 
                     event.setCancelled(true);
@@ -191,7 +195,7 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                 player.sendMessage("§aInterceptor level " + level + " récupéré !");
 
                 Location loc = armorStand.getLocation();
-                loc.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, loc, 30, 0.5, 1, 0.5, 0);
+                Particle.HAPPY_VILLAGER.builder().location(loc).count(30).offset(0.5, 1, 0.5).extra(0).allPlayers().spawn();
                 loc.getWorld().playSound(loc, Sound.ENTITY_ITEM_PICKUP, 1.0f, 1.0f);
 
                 armorStand.remove();
@@ -349,22 +353,23 @@ public final class Volcalypse extends JavaPlugin implements Listener {
         }
     }
 
-    public class MissileCommand implements CommandExecutor {
+    public class MissileCommand implements CommandExecutor, TabCompleter {
         @Override
         public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-            if (!(sender instanceof Player player)) {
-                sender.sendMessage("§cCette commande est réservée aux joueurs !");
-                return true;
-            }
-
-            if (!player.isOp()) {
-                player.sendMessage("§cVous devez être opérateur pour utiliser cette commande !");
+            // Vérifier les permissions
+            if (sender instanceof Player player) {
+                if (!player.isOp()) {
+                    player.sendMessage("§cVous devez être opérateur pour utiliser cette commande !");
+                    return true;
+                }
+            } else if (!(sender instanceof ConsoleCommandSender)) {
+                sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur ou la console !");
                 return true;
             }
 
             if (args.length < 3) {
-                player.sendMessage("§cUsage: /missile <type> <x> <z>");
-                player.sendMessage("§cTypes disponibles: small, medium, large, nuclear, antimaterial, incendiary");
+                sender.sendMessage("§cUsage: /missile <type> <x> <z> [monde]");
+                sender.sendMessage("§cTypes disponibles: small, medium, large, nuclear, antimaterial, incendiary");
                 return true;
             }
 
@@ -372,16 +377,70 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                 String missileType = args[0].toLowerCase();
                 int x = Integer.parseInt(args[1]);
                 int z = Integer.parseInt(args[2]);
+                
+                // Déterminer le monde
+                World targetWorld;
+                if (args.length >= 4) {
+                    // Monde spécifié
+                    targetWorld = getServer().getWorld(args[3]);
+                    if (targetWorld == null) {
+                        sender.sendMessage("§cMonde introuvable: " + args[3]);
+                        return true;
+                    }
+                } else if (sender instanceof Player player) {
+                    // Joueur: utiliser son monde
+                    targetWorld = player.getWorld();
+                } else {
+                    // Console sans monde spécifié: utiliser le monde par défaut
+                    targetWorld = getServer().getWorlds().get(0);
+                    sender.sendMessage("§eAucun monde spécifié, utilisation de: " + targetWorld.getName());
+                }
 
-                launchMissile(missileType, x, z, player.getWorld());
-                player.sendMessage("§aMissile " + missileType + " lancé à X:" + x + " Z:" + z);
+                launchMissile(missileType, x, z, targetWorld);
+                sender.sendMessage("§aMissile " + missileType + " lancé à X:" + x + " Z:" + z + " dans " + targetWorld.getName());
 
             } catch (NumberFormatException e) {
-                player.sendMessage("§cLes coordonnées doivent être des nombres entiers !");
+                sender.sendMessage("§cLes coordonnées doivent être des nombres entiers !");
                 return true;
             }
 
             return true;
+        }
+        
+        @Override
+        public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+            List<String> completions = new ArrayList<>();
+            
+            if (args.length == 1) {
+                // Autocomplétion des types de missiles
+                List<String> missileTypes = Arrays.asList("small", "medium", "large", "nuclear", "antimaterial", "incendiary");
+                String partial = args[0].toLowerCase();
+                for (String type : missileTypes) {
+                    if (type.startsWith(partial)) {
+                        completions.add(type);
+                    }
+                }
+            } else if (args.length == 2 || args.length == 3) {
+                // Pour X et Z, suggérer la position du joueur si c'est un joueur
+                if (sender instanceof Player player) {
+                    if (args.length == 2) {
+                        completions.add(String.valueOf((int) player.getLocation().getX()));
+                    } else {
+                        completions.add(String.valueOf((int) player.getLocation().getZ()));
+                    }
+                }
+            } else if (args.length == 4) {
+                // Autocomplétion des mondes
+                String partial = args[3].toLowerCase();
+                for (World world : getServer().getWorlds()) {
+                    String worldName = world.getName();
+                    if (worldName.toLowerCase().startsWith(partial)) {
+                        completions.add(worldName);
+                    }
+                }
+            }
+            
+            return completions;
         }
     }
 
@@ -393,7 +452,7 @@ public final class Volcalypse extends JavaPlugin implements Listener {
         missile.setFuseTicks(10000);
         missile.setGravity(false);
 
-        world.spawnParticle(Particle.EXPLOSION, startLoc, 10, 1, 1, 1, 0);
+        Particle.EXPLOSION.builder().location(startLoc).count(10).offset(1.0, 1.0, 1.0).extra(0.0).allPlayers().spawn();
         world.playSound(startLoc, Sound.ENTITY_WITHER_SHOOT, 2.0f, 0.5f);
 
         new BukkitRunnable() {
@@ -411,30 +470,30 @@ public final class Volcalypse extends JavaPlugin implements Listener {
 
                 switch (missileType.toLowerCase()) {
                     case "nuclear" -> {
-                        world.spawnParticle(Particle.FLAME, loc, 20, 0.3, 0.3, 0.3, 0.05);
-                        world.spawnParticle(Particle.SOUL_FIRE_FLAME, loc, 10, 0.2, 0.2, 0.2, 0.02);
-                        world.spawnParticle(Particle.ELECTRIC_SPARK, loc, 15, 0.4, 0.4, 0.4, 0.1);
-                        world.spawnParticle(Particle.GLOW, loc, 5, 0.3, 0.3, 0.3, 0);
+                        Particle.FLAME.builder().location(loc).count(20).offset(0.3, 0.3, 0.3).extra(0.05).allPlayers().spawn();
+                        Particle.SOUL_FIRE_FLAME.builder().location(loc).count(10).offset(0.2, 0.2, 0.2).extra(0.02).allPlayers().spawn();
+                        Particle.ELECTRIC_SPARK.builder().location(loc).count(15).offset(0.4, 0.4, 0.4).extra(0.1).allPlayers().spawn();
+                        Particle.GLOW.builder().location(loc).count(5).offset(0.3, 0.3, 0.3).extra(0).allPlayers().spawn();
                         if (currentTick % 10 == 0) {
                             world.playSound(loc, Sound.BLOCK_BEACON_AMBIENT, 0.5f, 2.0f);
                         }
                     }
                     case "antimaterial" -> {
-                        world.spawnParticle(Particle.PORTAL, loc, 30, 0.5, 0.5, 0.5, 1);
-                        world.spawnParticle(Particle.REVERSE_PORTAL, loc, 20, 0.3, 0.3, 0.3, 0.5);
-                        world.spawnParticle(Particle.ENCHANT, loc, 10, 0.4, 0.4, 0.4, 2);
-                        world.spawnParticle(Particle.WITCH, loc, 5, 0.2, 0.2, 0.2, 0);
+                        Particle.PORTAL.builder().location(loc).count(30).offset(0.5, 0.5, 0.5).extra(1).allPlayers().spawn();
+                        Particle.REVERSE_PORTAL.builder().location(loc).count(20).offset(0.3, 0.3, 0.3).extra(0.5).allPlayers().spawn();
+                        Particle.ENCHANT.builder().location(loc).count(10).offset(0.4, 0.4, 0.4).extra(2).allPlayers().spawn();
+                        Particle.WITCH.builder().location(loc).count(5).offset(0.2, 0.2, 0.2).extra(0).allPlayers().spawn();
                     }
                     case "incendiary" -> {
-                        world.spawnParticle(Particle.FLAME, loc, 25, 0.4, 0.4, 0.4, 0.1);
-                        world.spawnParticle(Particle.LAVA, loc, 8, 0.3, 0.3, 0.3, 0);
-                        world.spawnParticle(Particle.DRIPPING_LAVA, loc, 15, 0.3, 0.3, 0.3, 0);
-                        world.spawnParticle(Particle.SMOKE, loc, 10, 0.2, 0.2, 0.2, 0.05);
+                        Particle.FLAME.builder().location(loc).count(25).offset(0.4, 0.4, 0.4).extra(0.1).allPlayers().spawn();
+                        Particle.LAVA.builder().location(loc).count(8).offset(0.3, 0.3, 0.3).extra(0).allPlayers().spawn();
+                        Particle.DRIPPING_LAVA.builder().location(loc).count(15).offset(0.3, 0.3, 0.3).extra(0).allPlayers().spawn();
+                        Particle.SMOKE.builder().location(loc).count(10).offset(0.2, 0.2, 0.2).extra(0.05).allPlayers().spawn();
                     }
                     default -> {
-                        world.spawnParticle(Particle.FLAME, loc, 15, 0.2, 0.2, 0.2, 0.1);
-                        world.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE, loc, 8, 0.15, 0.15, 0.15, 0.05);
-                        world.spawnParticle(Particle.FIREWORK, loc, 3, 0.1, 0.1, 0.1, 0.05);
+                        Particle.FLAME.builder().location(loc).count(15).offset(0.2, 0.2, 0.2).extra(0.1).allPlayers().spawn();
+                        Particle.CAMPFIRE_SIGNAL_SMOKE.builder().location(loc).count(8).offset(0.15, 0.15, 0.15).extra(0.05).allPlayers().spawn();
+                        Particle.FIREWORK.builder().location(loc).count(3).offset(0.1, 0.1, 0.1).extra(0.05).allPlayers().spawn();
                     }
                 }
 
@@ -445,7 +504,7 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                     double offsetZ = Math.sin(spiralAngle + i * Math.PI * 2 / 3) * radius;
                     Location spiralLoc = loc.clone().add(offsetX, 0, offsetZ);
                     // Remplacé DUST par FLAME pour éviter les problèmes
-                    world.spawnParticle(Particle.FLAME, spiralLoc, 1, 0, 0, 0, 0);
+                    Particle.FLAME.builder().location(spiralLoc).count(1).offset(0.0, 0.0, 0.0).extra(0.0).allPlayers().spawn();
                 }
                 spiralAngle += 0.3;
 
@@ -492,17 +551,15 @@ public final class Volcalypse extends JavaPlugin implements Listener {
 
                             for (double d = 0; d < distance; d += 0.3) {
                                 Location pLoc = interceptorLoc.clone().add(dir.clone().multiply(d));
-                                world.spawnParticle(Particle.FLASH, pLoc, 1);
-                                world.spawnParticle(Particle.ELECTRIC_SPARK, pLoc, 3, 0.1, 0.1, 0.1, 0);
-                                world.spawnParticle(Particle.END_ROD, pLoc, 1, 0, 0, 0, 0);
+                                Particle.ELECTRIC_SPARK.builder().location(pLoc).count(3).offset(0.1, 0.1, 0.1).extra(0).allPlayers().spawn();
+                                Particle.END_ROD.builder().location(pLoc).count(1).offset(0.0, 0.0, 0.0).extra(0.0).allPlayers().spawn();
                             }
 
                             world.playSound(interceptorLoc, Sound.ENTITY_WARDEN_SONIC_BOOM, 2.0f, 1.0f);
                             world.playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, 1.5f, 1.5f);
 
-                            world.spawnParticle(Particle.EXPLOSION, loc, 20, 1, 1, 1, 0);
-                            world.spawnParticle(Particle.FLASH, loc, 5);
-                            world.spawnParticle(Particle.FIREWORK, loc, 50, 1, 1, 1, 0.2);
+                            Particle.EXPLOSION.builder().location(loc).count(20).offset(1.0, 1.0, 1.0).extra(0.0).allPlayers().spawn();
+                            Particle.FIREWORK.builder().location(loc).count(50).offset(1, 1, 1).extra(0.2).allPlayers().spawn();
 
                             missile.remove();
                             cancel();
@@ -530,9 +587,9 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                 world.createExplosion(center, 4.0f, false, true);
 
                 // Effets simples
-                world.spawnParticle(Particle.EXPLOSION, center, 30, 2, 2, 2, 0);
-                world.spawnParticle(Particle.FLAME, center, 50, 2, 2, 2, 0.05);
-                world.spawnParticle(Particle.SMOKE, center, 40, 2, 2, 2, 0.1);
+                Particle.EXPLOSION.builder().location(center).count(30).offset(2.0, 2.0, 2.0).extra(0.0).allPlayers().spawn();
+                Particle.FLAME.builder().location(center).count(50).offset(2.0, 2.0, 2.0).extra(0.05).allPlayers().spawn();
+                Particle.SMOKE.builder().location(center).count(40).offset(2.0, 2.0, 2.0).extra(0.1).allPlayers().spawn();
                 world.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.5f, 1.0f);
             }
 
@@ -540,10 +597,10 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                 world.createExplosion(center, 20.0f, true, true);
 
                 // Effets moyens avec ondes de choc
-                world.spawnParticle(Particle.EXPLOSION, center, 80, 5, 5, 5, 0);
-                world.spawnParticle(Particle.FLAME, center, 150, 4, 4, 4, 0.15);
-                world.spawnParticle(Particle.LARGE_SMOKE, center, 100, 5, 5, 5, 0.2);
-                world.spawnParticle(Particle.FIREWORK, center, 60, 5, 5, 5, 0.3);
+                Particle.EXPLOSION.builder().location(center).count(80).offset(5.0, 5.0, 5.0).extra(0.0).allPlayers().spawn();
+                Particle.FLAME.builder().location(center).count(150).offset(4.0, 4.0, 4.0).extra(0.15).allPlayers().spawn();
+                Particle.LARGE_SMOKE.builder().location(center).count(100).offset(5.0, 5.0, 5.0).extra(0.2).allPlayers().spawn();
+                Particle.FIREWORK.builder().location(center).count(60).offset(5.0, 5.0, 5.0).extra(0.3).allPlayers().spawn();
 
                 // Onde de choc
                 for (int i = 1; i <= 3; i++) {
@@ -556,8 +613,8 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                                 double dx = Math.cos(angle) * radius;
                                 double dz = Math.sin(angle) * radius;
                                 Location shockLoc = center.clone().add(dx, 0, dz);
-                                world.spawnParticle(Particle.SWEEP_ATTACK, shockLoc, 1);
-                                world.spawnParticle(Particle.CLOUD, shockLoc, 3, 0.2, 0.5, 0.2, 0);
+                                Particle.SWEEP_ATTACK.builder().location(shockLoc).count(1).allPlayers().spawn();
+                                Particle.CLOUD.builder().location(shockLoc).count(3).offset(0.2, 0.5, 0.2).extra(0).allPlayers().spawn();
                             }
                         }
                     }.runTaskLater(this, i * 3);
@@ -573,12 +630,11 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                 world.createExplosion(center, 40.0f, true, true);
 
                 // Effets massifs avec multiples couches
-                world.spawnParticle(Particle.EXPLOSION, center, 150, 10, 10, 10, 0);
-                world.spawnParticle(Particle.FLASH, center, 20);
-                world.spawnParticle(Particle.FLAME, center, 300, 8, 8, 8, 0.25);
-                world.spawnParticle(Particle.LARGE_SMOKE, center, 200, 10, 10, 10, 0.3);
-                world.spawnParticle(Particle.CLOUD, center, 180, 10, 10, 10, 0.4);
-                world.spawnParticle(Particle.LAVA, center, 40, 6, 6, 6, 0);
+                Particle.EXPLOSION.builder().location(center).count(150).offset(10.0, 10.0, 10.0).extra(0.0).allPlayers().spawn();
+                Particle.FLAME.builder().location(center).count(300).offset(8.0, 8.0, 8.0).extra(0.25).allPlayers().spawn();
+                Particle.LARGE_SMOKE.builder().location(center).count(200).offset(10.0, 10.0, 10.0).extra(0.3).allPlayers().spawn();
+                Particle.CLOUD.builder().location(center).count(180).offset(10.0, 10.0, 10.0).extra(0.4).allPlayers().spawn();
+                Particle.LAVA.builder().location(center).count(40).offset(6.0, 6.0, 6.0).extra(0.0).allPlayers().spawn();
 
                 // Ondes de choc multiples
                 for (int wave = 1; wave <= 5; wave++) {
@@ -591,9 +647,9 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                                 double dx = Math.cos(angle) * radius;
                                 double dz = Math.sin(angle) * radius;
                                 Location shockLoc = center.clone().add(dx, 0, dz);
-                                world.spawnParticle(Particle.SWEEP_ATTACK, shockLoc, 2);
-                                world.spawnParticle(Particle.EXPLOSION, shockLoc, 1);
-                                world.spawnParticle(Particle.CLOUD, shockLoc, 5, 0.3, 0.8, 0.3, 0);
+                                Particle.SWEEP_ATTACK.builder().location(shockLoc).count(2).allPlayers().spawn();
+                                Particle.EXPLOSION.builder().location(shockLoc).count(1).allPlayers().spawn();
+                                Particle.CLOUD.builder().location(shockLoc).count(5).offset(0.3, 0.8, 0.3).extra(0).allPlayers().spawn();
                             }
                             world.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 0.5f);
                         }
@@ -610,8 +666,8 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                             return;
                         }
                         Location smokeLoc = center.clone().add(0, tick * 2, 0);
-                        world.spawnParticle(Particle.LARGE_SMOKE, smokeLoc, 10, 3, 1, 3, 0.05);
-                        world.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE, smokeLoc, 5, 2, 1, 2, 0.02);
+                        Particle.LARGE_SMOKE.builder().location(smokeLoc).count(10).offset(3, 1, 3).extra(0.05).allPlayers().spawn();
+                        Particle.CAMPFIRE_SIGNAL_SMOKE.builder().location(smokeLoc).count(5).offset(2, 1, 2).extra(0.02).allPlayers().spawn();
                         tick++;
                     }
                 }.runTaskTimer(this, 5, 2);
@@ -648,23 +704,22 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                 // ═══════════════════════════════════════
 
                 // Flash initial aveuglant
-                world.spawnParticle(Particle.FLASH, center, 100);
-                world.spawnParticle(Particle.EXPLOSION, center, 500, 20, 20, 20, 0);
+                Particle.EXPLOSION.builder().location(center).count(500).offset(20.0, 20.0, 20.0).extra(0.0).allPlayers().spawn();
 
                 // Boule de feu centrale
-                world.spawnParticle(Particle.FLAME, center, 800, 15, 15, 15, 0.8);
-                world.spawnParticle(Particle.SOUL_FIRE_FLAME, center, 400, 12, 12, 12, 0.5);
-                world.spawnParticle(Particle.LAVA, center, 150, 10, 10, 10, 0);
+                Particle.FLAME.builder().location(center).count(800).offset(15.0, 15.0, 15.0).extra(0.8).allPlayers().spawn();
+                Particle.SOUL_FIRE_FLAME.builder().location(center).count(400).offset(12.0, 12.0, 12.0).extra(0.5).allPlayers().spawn();
+                Particle.LAVA.builder().location(center).count(150).offset(10.0, 10.0, 10.0).extra(0.0).allPlayers().spawn();
 
                 // Particules radioactives vertes
-                world.spawnParticle(Particle.GLOW, center, 300, 15, 15, 15, 0.5);
-                world.spawnParticle(Particle.ELECTRIC_SPARK, center, 250, 15, 15, 15, 0.6);
-                world.spawnParticle(Particle.SOUL, center, 200, 12, 12, 12, 0.3);
-                world.spawnParticle(Particle.WITCH, center, 150, 10, 10, 10, 0.4);
+                Particle.GLOW.builder().location(center).count(300).offset(15.0, 15.0, 15.0).extra(0.5).allPlayers().spawn();
+                Particle.ELECTRIC_SPARK.builder().location(center).count(250).offset(15.0, 15.0, 15.0).extra(0.6).allPlayers().spawn();
+                Particle.SOUL.builder().location(center).count(200).offset(12.0, 12.0, 12.0).extra(0.3).allPlayers().spawn();
+                Particle.WITCH.builder().location(center).count(150).offset(10.0, 10.0, 10.0).extra(0.4).allPlayers().spawn();
 
                 // Fumée dense
-                world.spawnParticle(Particle.LARGE_SMOKE, center, 400, 18, 18, 18, 0.4);
-                world.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE, center, 300, 15, 15, 15, 0.3);
+                Particle.LARGE_SMOKE.builder().location(center).count(400).offset(18.0, 18.0, 18.0).extra(0.4).allPlayers().spawn();
+                Particle.CAMPFIRE_SIGNAL_SMOKE.builder().location(center).count(300).offset(15.0, 15.0, 15.0).extra(0.3).allPlayers().spawn();
 
                 // Sons apocalyptiques
                 world.playSound(center, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 5.0f, 0.3f);
@@ -683,10 +738,9 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                                 double dx = Math.cos(angle) * radius;
                                 double dz = Math.sin(angle) * radius;
                                 Location shockLoc = center.clone().add(dx, 0, dz);
-                                world.spawnParticle(Particle.SWEEP_ATTACK, shockLoc, 3);
-                                world.spawnParticle(Particle.EXPLOSION, shockLoc, 2);
-                                world.spawnParticle(Particle.FLASH, shockLoc, 1);
-                                world.spawnParticle(Particle.SOUL_FIRE_FLAME, shockLoc, 5, 0.5, 0.5, 0.5, 0);
+                                Particle.SWEEP_ATTACK.builder().location(shockLoc).count(3).allPlayers().spawn();
+                                Particle.EXPLOSION.builder().location(shockLoc).count(2).allPlayers().spawn();
+                                Particle.SOUL_FIRE_FLAME.builder().location(shockLoc).count(5).offset(0.5, 0.5, 0.5).extra(0).allPlayers().spawn();
                             }
                             world.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.4f);
                         }
@@ -714,9 +768,9 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                             double dx = Math.cos(angle) * stemRadius;
                             double dz = Math.sin(angle) * stemRadius;
                             Location particleLoc = stemLoc.clone().add(dx, 0, dz);
-                            world.spawnParticle(Particle.LARGE_SMOKE, particleLoc, 3, 1, 1, 1, 0.02);
-                            world.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE, particleLoc, 2, 0.5, 0.5, 0.5, 0.01);
-                            world.spawnParticle(Particle.FLAME, particleLoc, 1, 0.3, 0.3, 0.3, 0);
+                            Particle.LARGE_SMOKE.builder().location(particleLoc).count(3).offset(1, 1, 1).extra(0.02).allPlayers().spawn();
+                            Particle.CAMPFIRE_SIGNAL_SMOKE.builder().location(particleLoc).count(2).offset(0.5, 0.5, 0.5).extra(0.01).allPlayers().spawn();
+                            Particle.FLAME.builder().location(particleLoc).count(1).offset(0.3, 0.3, 0.3).extra(0).allPlayers().spawn();
                         }
 
                         // Chapeau du champignon (commence à ~100 blocs de hauteur)
@@ -728,9 +782,9 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                                 double dx = Math.cos(angle) * capRadius;
                                 double dz = Math.sin(angle) * capRadius;
                                 Location capLoc = stemLoc.clone().add(dx, 5, dz);
-                                world.spawnParticle(Particle.LARGE_SMOKE, capLoc, 5, 2, 2, 2, 0.05);
-                                world.spawnParticle(Particle.EXPLOSION, capLoc, 1);
-                                world.spawnParticle(Particle.SOUL, capLoc, 2, 1, 1, 1, 0);
+                                Particle.LARGE_SMOKE.builder().location(capLoc).count(5).offset(2, 2, 2).extra(0.05).allPlayers().spawn();
+                                Particle.EXPLOSION.builder().location(capLoc).count(1).allPlayers().spawn();
+                                Particle.SOUL.builder().location(capLoc).count(2).offset(1.0, 1.0, 1.0).extra(0.0).allPlayers().spawn();
                             }
                         }
 
@@ -766,19 +820,17 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                 // ═══════════════════════════════════════
 
                 // Implosion initiale
-                world.spawnParticle(Particle.REVERSE_PORTAL, center, 2000, 25, 25, 25, 10);
-                world.spawnParticle(Particle.PORTAL, center, 1500, 20, 20, 20, 8);
+                Particle.REVERSE_PORTAL.builder().location(center).count(2000).offset(25.0, 25.0, 25.0).extra(10.0).allPlayers().spawn();
+                Particle.PORTAL.builder().location(center).count(1500).offset(20.0, 20.0, 20.0).extra(8.0).allPlayers().spawn();
 
                 // Flash dimensionnel
-                world.spawnParticle(Particle.FLASH, center, 150);
-                world.spawnParticle(Particle.EXPLOSION, center, 400, 20, 20, 20, 0);
+                Particle.EXPLOSION.builder().location(center).count(400).offset(20.0, 20.0, 20.0).extra(0.0).allPlayers().spawn();
 
                 // Particules mystiques
-                world.spawnParticle(Particle.ENCHANT, center, 500, 20, 20, 20, 5);
-                world.spawnParticle(Particle.WITCH, center, 400, 18, 18, 18, 0.8);
-                world.spawnParticle(Particle.DRAGON_BREATH, center, 300, 15, 15, 15, 0.5);
-                world.spawnParticle(Particle.END_ROD, center, 200, 12, 12, 12, 0.3);
-                world.spawnParticle(Particle.GLOW, center, 250, 15, 15, 15, 0.4);
+                Particle.ENCHANT.builder().location(center).count(500).offset(20.0, 20.0, 20.0).extra(5.0).allPlayers().spawn();
+                Particle.WITCH.builder().location(center).count(400).offset(18.0, 18.0, 18.0).extra(0.8).allPlayers().spawn();
+                Particle.END_ROD.builder().location(center).count(200).offset(12.0, 12.0, 12.0).extra(0.3).allPlayers().spawn();
+                Particle.GLOW.builder().location(center).count(250).offset(15.0, 15.0, 15.0).extra(0.4).allPlayers().spawn();
 
                 // Sons dimensionnels
                 world.playSound(center, Sound.ENTITY_WITHER_DEATH, 5.0f, 0.3f);
@@ -803,9 +855,9 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                             double y = center.getY() + Math.sin(tick / 5.0) * 10;
 
                             Location vortexLoc = new Location(world, x, y, z);
-                            world.spawnParticle(Particle.PORTAL, vortexLoc, 5, 0.1, 0.1, 0.1, 1);
-                            world.spawnParticle(Particle.REVERSE_PORTAL, vortexLoc, 3, 0.1, 0.1, 0.1, 0.5);
-                            world.spawnParticle(Particle.WITCH, vortexLoc, 1);
+                            Particle.PORTAL.builder().location(vortexLoc).count(5).offset(0.1, 0.1, 0.1).extra(1).allPlayers().spawn();
+                            Particle.REVERSE_PORTAL.builder().location(vortexLoc).count(3).offset(0.1, 0.1, 0.1).extra(0.5).allPlayers().spawn();
+                            Particle.WITCH.builder().location(vortexLoc).count(1).allPlayers().spawn();
                         }
 
                         angle += 0.3;
@@ -834,10 +886,10 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                             double dx = Math.cos(angle) * stemRadius;
                             double dz = Math.sin(angle) * stemRadius;
                             Location particleLoc = stemLoc.clone().add(dx, 0, dz);
-                            world.spawnParticle(Particle.PORTAL, particleLoc, 8, 1, 1, 1, 2);
-                            world.spawnParticle(Particle.REVERSE_PORTAL, particleLoc, 5, 0.8, 0.8, 0.8, 1);
-                            world.spawnParticle(Particle.WITCH, particleLoc, 2, 0.5, 0.5, 0.5, 0);
-                            world.spawnParticle(Particle.ENCHANT, particleLoc, 3, 0.5, 0.5, 0.5, 1);
+                            Particle.PORTAL.builder().location(particleLoc).count(8).offset(1.0, 1.0, 1.0).extra(2.0).allPlayers().spawn();
+                            Particle.REVERSE_PORTAL.builder().location(particleLoc).count(5).offset(0.8, 0.8, 0.8).extra(1).allPlayers().spawn();
+                            Particle.WITCH.builder().location(particleLoc).count(2).offset(0.5, 0.5, 0.5).extra(0).allPlayers().spawn();
+                            Particle.ENCHANT.builder().location(particleLoc).count(3).offset(0.5, 0.5, 0.5).extra(1).allPlayers().spawn();
                         }
 
                         // Chapeau dimensionnel massif
@@ -849,15 +901,13 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                                 double dx = Math.cos(angle) * capRadius;
                                 double dz = Math.sin(angle) * capRadius;
                                 Location capLoc = stemLoc.clone().add(dx, 8, dz);
-                                world.spawnParticle(Particle.PORTAL, capLoc, 10, 2, 2, 2, 3);
-                                world.spawnParticle(Particle.REVERSE_PORTAL, capLoc, 6, 1.5, 1.5, 1.5, 2);
-                                world.spawnParticle(Particle.DRAGON_BREATH, capLoc, 3, 1, 1, 1, 0);
-                                world.spawnParticle(Particle.END_ROD, capLoc, 2);
+                                Particle.PORTAL.builder().location(capLoc).count(10).offset(2.0, 2.0, 2.0).extra(3.0).allPlayers().spawn();
+                                Particle.REVERSE_PORTAL.builder().location(capLoc).count(6).offset(1.5, 1.5, 1.5).extra(2).allPlayers().spawn();
+                                Particle.END_ROD.builder().location(capLoc).count(2).allPlayers().spawn();
 
                                 // Éclairs dimensionnels
                                 if (Math.random() < 0.1) {
-                                    world.spawnParticle(Particle.FLASH, capLoc, 1);
-                                    world.spawnParticle(Particle.ELECTRIC_SPARK, capLoc, 5, 1, 1, 1, 0);
+                                    Particle.ELECTRIC_SPARK.builder().location(capLoc).count(5).offset(1.0, 1.0, 1.0).extra(0.0).allPlayers().spawn();
                                 }
                             }
                         }
@@ -877,9 +927,8 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                                 double dx = Math.cos(angle) * waveRadius;
                                 double dz = Math.sin(angle) * waveRadius;
                                 Location shockLoc = center.clone().add(dx, 0, dz);
-                                world.spawnParticle(Particle.PORTAL, shockLoc, 10, 0.5, 2, 0.5, 2);
-                                world.spawnParticle(Particle.REVERSE_PORTAL, shockLoc, 5, 0.3, 1, 0.3, 1);
-                                world.spawnParticle(Particle.FLASH, shockLoc, 1);
+                                Particle.PORTAL.builder().location(shockLoc).count(10).offset(0.5, 2, 0.5).extra(2).allPlayers().spawn();
+                                Particle.REVERSE_PORTAL.builder().location(shockLoc).count(5).offset(0.3, 1, 0.3).extra(1).allPlayers().spawn();
                             }
                             world.playSound(center, Sound.BLOCK_PORTAL_TRIGGER, 1.5f, 0.5f);
                         }
@@ -906,7 +955,7 @@ public final class Volcalypse extends JavaPlugin implements Listener {
 
                                         // Particules lors de la destruction
                                         if (Math.random() < 0.001) {
-                                            world.spawnParticle(Particle.PORTAL, blockLoc, 5, 0.5, 0.5, 0.5, 0.5);
+                                            Particle.PORTAL.builder().location(blockLoc).count(5).offset(0.5, 0.5, 0.5).extra(0.5).allPlayers().spawn();
                                         }
                                     }
                                 }
@@ -946,7 +995,7 @@ public final class Volcalypse extends JavaPlugin implements Listener {
 
                     Location fireLoc = center.clone().add(dxFire, dyFire, dzFire);
                     world.createExplosion(fireLoc, 5.0f, true, false);
-                    world.spawnParticle(Particle.SOUL_FIRE_FLAME, fireLoc, 20, 2, 2, 2, 0.1);
+                    Particle.SOUL_FIRE_FLAME.builder().location(fireLoc).count(20).offset(2, 2, 2).extra(0.1).allPlayers().spawn();
                 }
 
                 // ZONE DIMENSIONNELLE PERSISTANTE (30 minutes)
@@ -958,13 +1007,12 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                 int fireRadiusInt = (int) fireRadius;
 
                 // Effets pyrotechniques massifs
-                world.spawnParticle(Particle.EXPLOSION, center, 100, 12, 12, 12, 0);
-                world.spawnParticle(Particle.FLASH, center, 30);
-                world.spawnParticle(Particle.FLAME, center, 800, 18, 18, 18, 0.5);
-                world.spawnParticle(Particle.LAVA, center, 250, 12, 12, 12, 0);
-                world.spawnParticle(Particle.DRIPPING_LAVA, center, 150, 10, 10, 10, 0);
-                world.spawnParticle(Particle.LARGE_SMOKE, center, 300, 15, 15, 15, 0.3);
-                world.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE, center, 200, 12, 12, 12, 0.2);
+                Particle.EXPLOSION.builder().location(center).count(100).offset(12.0, 12.0, 12.0).extra(0.0).allPlayers().spawn();
+                Particle.FLAME.builder().location(center).count(800).offset(18.0, 18.0, 18.0).extra(0.5).allPlayers().spawn();
+                Particle.LAVA.builder().location(center).count(250).offset(12.0, 12.0, 12.0).extra(0.0).allPlayers().spawn();
+                Particle.DRIPPING_LAVA.builder().location(center).count(150).offset(10.0, 10.0, 10.0).extra(0.0).allPlayers().spawn();
+                Particle.LARGE_SMOKE.builder().location(center).count(300).offset(15.0, 15.0, 15.0).extra(0.3).allPlayers().spawn();
+                Particle.CAMPFIRE_SIGNAL_SMOKE.builder().location(center).count(200).offset(12.0, 12.0, 12.0).extra(0.2).allPlayers().spawn();
 
                 world.playSound(center, Sound.ITEM_FIRECHARGE_USE, 5.0f, 0.6f);
                 world.playSound(center, Sound.ENTITY_BLAZE_SHOOT, 3.0f, 0.5f);
@@ -981,9 +1029,9 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                                 double dx = Math.cos(angle) * waveRadius;
                                 double dz = Math.sin(angle) * waveRadius;
                                 Location flameLoc = center.clone().add(dx, 0, dz);
-                                world.spawnParticle(Particle.FLAME, flameLoc, 15, 0.5, 1, 0.5, 0.1);
-                                world.spawnParticle(Particle.LAVA, flameLoc, 3);
-                                world.spawnParticle(Particle.DRIPPING_LAVA, flameLoc, 5, 0.3, 0.5, 0.3, 0);
+                                Particle.FLAME.builder().location(flameLoc).count(15).offset(0.5, 1, 0.5).extra(0.1).allPlayers().spawn();
+                                Particle.LAVA.builder().location(flameLoc).count(3).allPlayers().spawn();
+                                Particle.DRIPPING_LAVA.builder().location(flameLoc).count(5).offset(0.3, 0.5, 0.3).extra(0).allPlayers().spawn();
                             }
                         }
                     }.runTaskLater(this, wave * 3);
@@ -1000,9 +1048,9 @@ public final class Volcalypse extends JavaPlugin implements Listener {
                         }
                         double height = tick * 2;
                         Location flameLoc = center.clone().add(0, height, 0);
-                        world.spawnParticle(Particle.FLAME, flameLoc, 15, 2, 1, 2, 0.1);
-                        world.spawnParticle(Particle.LAVA, flameLoc, 3, 1, 0.5, 1, 0);
-                        world.spawnParticle(Particle.SMOKE, flameLoc, 8, 1.5, 1, 1.5, 0.05);
+                        Particle.FLAME.builder().location(flameLoc).count(15).offset(2, 1, 2).extra(0.1).allPlayers().spawn();
+                        Particle.LAVA.builder().location(flameLoc).count(3).offset(1, 0.5, 1).extra(0).allPlayers().spawn();
+                        Particle.SMOKE.builder().location(flameLoc).count(8).offset(1.5, 1, 1.5).extra(0.05).allPlayers().spawn();
                         tick++;
                     }
                 }.runTaskTimer(this, 5, 2);
